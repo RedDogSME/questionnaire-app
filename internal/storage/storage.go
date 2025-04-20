@@ -33,7 +33,7 @@ type Storage interface {
 
 // FileStorage implements Storage interface using local file system
 type FileStorage struct {
-	basePath string
+	BasePath string // Exported field for access by sample data creation
 }
 
 // NewFileStorage creates a new file-based storage
@@ -52,12 +52,12 @@ func NewFileStorage(basePath string) (*FileStorage, error) {
 		}
 	}
 	
-	return &FileStorage{basePath: basePath}, nil
+	return &FileStorage{BasePath: basePath}, nil
 }
 
 // GetApplication retrieves an application by ID
 func (s *FileStorage) GetApplication(ctx context.Context, id string) (*models.Application, error) {
-	path := filepath.Join(s.basePath, "applications", id+".json")
+	path := filepath.Join(s.BasePath, "applications", id+".json")
 	
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
@@ -77,7 +77,7 @@ func (s *FileStorage) GetApplication(ctx context.Context, id string) (*models.Ap
 
 // ListApplications returns all applications
 func (s *FileStorage) ListApplications(ctx context.Context) ([]*models.Application, error) {
-	dir := filepath.Join(s.basePath, "applications")
+	dir := filepath.Join(s.BasePath, "applications")
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read applications directory: %w", err)
@@ -113,7 +113,7 @@ func (s *FileStorage) SaveApplication(ctx context.Context, app *models.Applicati
 		return fmt.Errorf("failed to marshal application: %w", err)
 	}
 	
-	path := filepath.Join(s.basePath, "applications", app.ID+".json")
+	path := filepath.Join(s.BasePath, "applications", app.ID+".json")
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return fmt.Errorf("failed to write application file: %w", err)
 	}
@@ -123,7 +123,7 @@ func (s *FileStorage) SaveApplication(ctx context.Context, app *models.Applicati
 
 // GetQuestions returns all questions
 func (s *FileStorage) GetQuestions(ctx context.Context) ([]*models.Question, error) {
-	dir := filepath.Join(s.basePath, "questions")
+	dir := filepath.Join(s.BasePath, "questions")
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read questions directory: %w", err)
@@ -154,7 +154,7 @@ func (s *FileStorage) GetQuestions(ctx context.Context) ([]*models.Question, err
 
 // GetQuestion retrieves a question by ID
 func (s *FileStorage) GetQuestion(ctx context.Context, id string) (*models.Question, error) {
-	path := filepath.Join(s.basePath, "questions", id+".json")
+	path := filepath.Join(s.BasePath, "questions", id+".json")
 	
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
@@ -179,7 +179,7 @@ func (s *FileStorage) CreateAssessment(ctx context.Context, assessment *models.A
 		return fmt.Errorf("failed to marshal assessment: %w", err)
 	}
 	
-	path := filepath.Join(s.basePath, "assessments", assessment.ID+".json")
+	path := filepath.Join(s.BasePath, "assessments", assessment.ID+".json")
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return fmt.Errorf("failed to write assessment file: %w", err)
 	}
@@ -189,7 +189,7 @@ func (s *FileStorage) CreateAssessment(ctx context.Context, assessment *models.A
 
 // GetAssessment retrieves an assessment by ID
 func (s *FileStorage) GetAssessment(ctx context.Context, id string) (*models.Assessment, error) {
-	path := filepath.Join(s.basePath, "assessments", id+".json")
+	path := filepath.Join(s.BasePath, "assessments", id+".json")
 	
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
@@ -210,7 +210,7 @@ func (s *FileStorage) GetAssessment(ctx context.Context, id string) (*models.Ass
 // UpdateAssessment updates an existing assessment
 func (s *FileStorage) UpdateAssessment(ctx context.Context, assessment *models.Assessment) error {
 	// Check if assessment exists
-	path := filepath.Join(s.basePath, "assessments", assessment.ID+".json")
+	path := filepath.Join(s.BasePath, "assessments", assessment.ID+".json")
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return fmt.Errorf("assessment not found: %s", assessment.ID)
 	}
@@ -230,7 +230,7 @@ func (s *FileStorage) UpdateAssessment(ctx context.Context, assessment *models.A
 
 // ListAssessments returns all assessments for an application
 func (s *FileStorage) ListAssessments(ctx context.Context, applicationID string) ([]*models.Assessment, error) {
-	dir := filepath.Join(s.basePath, "assessments")
+	dir := filepath.Join(s.BasePath, "assessments")
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read assessments directory: %w", err)
@@ -269,7 +269,7 @@ func (s *FileStorage) SaveReport(ctx context.Context, report *models.Report) err
 		return fmt.Errorf("failed to marshal report: %w", err)
 	}
 	
-	path := filepath.Join(s.basePath, "reports", report.AssessmentID+".json")
+	path := filepath.Join(s.BasePath, "reports", report.AssessmentID+".json")
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return fmt.Errorf("failed to write report file: %w", err)
 	}
@@ -279,7 +279,7 @@ func (s *FileStorage) SaveReport(ctx context.Context, report *models.Report) err
 
 // GetReport retrieves a report by assessment ID
 func (s *FileStorage) GetReport(ctx context.Context, assessmentID string) (*models.Report, error) {
-	path := filepath.Join(s.basePath, "reports", assessmentID+".json")
+	path := filepath.Join(s.BasePath, "reports", assessmentID+".json")
 	
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
